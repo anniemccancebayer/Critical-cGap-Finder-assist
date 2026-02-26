@@ -1,6 +1,7 @@
 # Import required libraries
 import pandas as pd
 import dash
+from dash import dcc, html, Input, Output, dash_table,no_update
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
@@ -38,7 +39,7 @@ navbar = dbc.Navbar(
                         #dbc.Col(html.Img(src=f'data:image/png;base64,{encoded_image}', height="55px")),
                     ],
                     align="center",
-                    no_gutters=True,
+                 #   no_gutters=True,
                 ),
                 href="/",  # Link to the home page of your app
             ),
@@ -139,53 +140,58 @@ main_content  = dbc.Container(
                     id="loading",
                     type="default",  # You can choose 'default', 'circle', or 'square'                 
                     children=[
-                        dcc.Dropdown(
-                            id='regulatory-filter',
-                            options=[],
-                            multi=False,
-                            placeholder='Select Master Country Zone Block',
-                            style={'width': '550px','marginBottom': '10px'},
-                            className='dropdown-custom shadow'
-                        ),
-                        dcc.Dropdown(
-                            id='ApplicationRate-filter',
-                            options=[],
-                            multi=False,
-                            placeholder='Select the AS dose rate expressions',
-                            style={'width': '550px','marginBottom': '10px'},
-                            className='dropdown-custom shadow'
-                        ),
-                        
-                        dcc.Dropdown(
-                            id='product-filter',
-                            options=[],
-                            multi=True,
-                            placeholder='Select Product',
-                            className='dropdown-custom shadow'
-                        ),
-
-                        dcc.Dropdown(
-                            id='crop-filter',
-                            options=[],
-                            multi=True,
-                            placeholder='Select crop'
-                        ),
-                        
-                        dcc.Dropdown(
-                            id='region-filter',
-                            options=[],
-                            multi=True,
-                            placeholder='Select region',
-                            className='dropdown-custom shadow'
-                        ),
                         html.Div(
-                            id='filtered-table',
-                            style={'marginTop': '30px'},
-                            className='dropdown-custom shadow'
-                        ),
+                            id='dropdown-container',
+                            children=[
+                                dcc.Dropdown(
+                                    id='regulatory-filter',
+                                    options=[],
+                                    multi=False,
+                                    placeholder='Select Master Country Zone Block',
+                                    style={'width': '550px','marginBottom': '10px'},
+                                    className='dropdown-custom shadow'
+                                ),
+                                dcc.Dropdown(
+                                    id='ApplicationRate-filter',
+                                    options=[],
+                                    multi=False,
+                                    placeholder='Select the AS dose rate expressions',
+                                    style={'width': '550px','marginBottom': '10px'},
+                                    className='dropdown-custom shadow'
+                                ),
+                                
+                                dcc.Dropdown(
+                                    id='product-filter',
+                                    options=[],
+                                    multi=True,
+                                    placeholder='Select Product',
+                                    className='dropdown-custom shadow'
+                                ),
+
+                                dcc.Dropdown(
+                                    id='crop-filter',
+                                    options=[],
+                                    multi=True,
+                                    placeholder='Select crop'
+                                ),
+                                
+                                dcc.Dropdown(
+                                    id='region-filter',
+                                    options=[],
+                                    multi=True,
+                                    placeholder='Select region',
+                                    className='dropdown-custom shadow'
+                                ),
+                                html.Div(
+                                    id='filtered-table',
+                                    style={'marginTop': '30px'},
+                                    className='dropdown-custom shadow'
+                                ),
 
 
 
+                            ]
+                        )
                     ]
                 ),
                 # width={'size': 8, 'offset': 3}
@@ -293,7 +299,7 @@ main_content  = dbc.Container(
                     style={'paddingLeft': '10px'}  # Optional: Adds some spacing between columns
                 )
             ],
-            no_gutters=True,  # Set to False if you want gutters (spacing) between columns
+           # no_gutters=True,  # Set to False if you want gutters (spacing) between columns
             className="mb-4"  # Optional: Adds margin bottom
         ),
         
@@ -303,12 +309,12 @@ main_content  = dbc.Container(
 app.layout = html.Div([navbar, main_content])
 # Callback to handle the loading state and apply blur effect
 @app.callback(
-    Output('loading', 'style'),
-    Input('loading', 'loading_state')
+    Output('dropdown-container', 'style'),
+    [Input('regulatory-filter', 'options')]
 )
 def update_loading_style(loading_state):
     print('loading ...')
-    if loading_state and loading_state['is_loading']:
+    if not loading_state :
         return {'filter': 'blur(2px)', 'transition': 'filter 0.3s ease'}  # Apply blur when loading
     return {'filter': 'blur(0px)', 'transition': 'filter 0.3s ease'}  # No blur when not loading
 
@@ -324,11 +330,7 @@ def update_loading_style(loading_state):
 )
 
 def data_information(contents,filename):
-    print('---- am in data_information ---- ')
     global cgap_df 
-    
-
-
     if contents is not None:
         
         print('----file not empty------------')
@@ -337,8 +339,6 @@ def data_information(contents,filename):
                 lambda x: x.replace("rate", "").replace("Max single", "Application rate") 
                 if x.startswith("Max single") and x.endswith("(g/ha)") else x
             )
-        print('------ df imported_-_-')
-        #print(df.head(3))
         rate_columns = [
                             {'label': col.replace('\n', ''), 'value': col.replace('\n', '')}
                             for col in df.columns 
@@ -507,15 +507,18 @@ def display_data(region_columns,rate_columns,product_options, crop_options, regi
                 },
                 style_cell={
                     'minWidth': '80px', 'maxWidth': '180px', #'whiteSpace': 'normal',
-                    'fontSize': '10px'
+                    'textAlign': 'left',
+                        'padding': '5px',
+                        'fontFamily': 'Arial, sans-serif',
+                        'fontSize': '14px',
                 },
                 style_header={
-                    'backgroundColor':'#f9f9f9',
+                    'backgroundColor':'#f8f9fa',
+                    'fontWeight': 'bold',
+                        'textAlign': 'center',
                     'whiteSpace': 'normal',
                     'height': 'auto',
-                    'textAlign': 'center',
                     'maxWidth': '200px',
-                    'fontSize': '12px'
                 },
                 style_data_conditional= [{
                                         'if': {
@@ -523,6 +526,9 @@ def display_data(region_columns,rate_columns,product_options, crop_options, regi
                                         },
                                         'backgroundColor': 'lightgrey',
                                     } for col in ['is_critical','is_most_critical']],
+                                    page_size=20,  # Show 20 rows per page
+                    filter_action='native',  # Allow filtering
+                    sort_action='native',  # Allow sorting
                 page_action='none',
                 fixed_rows={'headers': True}
             )
@@ -709,13 +715,6 @@ def display_data2(region_columns,rate_columns, contents2, filename2):
             # Add critical flags
             # Calculate critical flags
             critical_values2 = calculate_critical_flag(critical_values2,rate_columns,region_columns)
-            
-
-            print('///////////////////////////////////////////////////')
-            print('critical_values2  ', critical_values2.shape)
-            print('critical_values  ', critical_values.shape)
-
-        
             # Merging and finding differences
             merged_df = pd.merge(critical_values, critical_values2, how='outer', indicator=True)
 
@@ -929,4 +928,4 @@ def compare_files(contents_new, filename_new,region_columns,rate_columns):
 
 '''
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run(debug=True, port=8080,dev_tools_hot_reload=False)
