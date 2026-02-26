@@ -694,7 +694,7 @@ def display_data2(region_columns,rate_columns, contents2, filename2):
                 lambda x: x.replace("rate", "").replace("Max single", "Application rate") 
                 if x.startswith("Max single") and x.endswith("(g/ha)") else x)
         cgap_df2=data_harmonization(df2)
-   
+        print('#######')
            
         if rate_columns is not None and region_columns is not None:
 
