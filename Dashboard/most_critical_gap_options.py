@@ -136,6 +136,11 @@ main_content  = dbc.Container(
 
             dbc.Row(
             dbc.Col(
+
+                dbc.Card(
+                                dbc.CardBody([
+
+
                 dcc.Loading(  # Add the Loading component here
                     id="loading",
                     type="default",  # You can choose 'default', 'circle', or 'square'                 
@@ -194,6 +199,9 @@ main_content  = dbc.Container(
                         )
                     ]
                 ),
+                ]),  className="mb-3 shadow",
+                                      style={'backgroundColor': "#ffffff", 'borderRadius': '15px', 'padding': '14px'}
+                               ),
                 # width={'size': 8, 'offset': 3}
             )
         ),
