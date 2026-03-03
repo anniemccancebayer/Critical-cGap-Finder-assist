@@ -20,7 +20,10 @@ import logging
 # Initialize logging
 logging.basicConfig(level=logging.INFO)
 # Initialize the Dash app
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], suppress_callback_exceptions=True)
+app = dash.Dash(__name__, 
+                url_base_pathname=os.environ.get("DASH_BASE_URL_PATH", "/"),
+                external_stylesheets=[dbc.themes.BOOTSTRAP], 
+                suppress_callback_exceptions=True)
  
  
 # Configure Dash to recognize the URL of the container
@@ -797,4 +800,4 @@ def display_data2( contents2, filename2,region_columns,rate_columns):
 
 
 if __name__ == '__main__':
-    app.run_server(port=8888, host='0.0.0.0', debug=True, dev_tools_hot_reload=True)
+    app.run_server(port=8888, host='0.0.0.0', debug=True, dev_tools_hot_reload=False)
